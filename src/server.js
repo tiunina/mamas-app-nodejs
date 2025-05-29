@@ -3,8 +3,7 @@ import cors from 'cors';
 import pino from 'pino-http';
 
 import { getEnvVar } from './utils/getEnvVar.js';
-
-import * as taskServices from './services/tasks.js';
+import tasksRouter from './routers/tasks.js';
 
 export const startServer = () => {
   const app = express();
@@ -18,32 +17,7 @@ export const startServer = () => {
     }),
   );
 
-  app.get('/tasks', async (req, res) => {
-    const tasks = await taskServices.getTasks();
-    res.json({
-      status: 200,
-      message: 'Successfully found tasks!',
-      data: tasks,
-    });
-  });
-
-  app.get('/tasks/:taskId', async (req, res) => {
-    const { taskId } = req.params;
-    const data = await taskServices.getTaskById(taskId);
-    if (!data) {
-      return res.status(404).json({
-        status: 404,
-        message: `Task is not found`,
-      });
-    }
-
-    res.json({
-      status: 200,
-      message: `Successfully found task with id ${taskId}!`,
-      data,
-    });
-  });
-
+  app.use('/tasks', tasksRouter);
   app.use((req, res) => {
     res.status(404).json({
       message: `Not found`,
